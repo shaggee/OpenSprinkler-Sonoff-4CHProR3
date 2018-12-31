@@ -65,10 +65,10 @@ const char wifi_filename[]   PROGMEM = WIFI_FILENAME;
 byte OpenSprinkler::state = OS_STATE_INITIAL;
 byte OpenSprinkler::prev_station_bits[MAX_EXT_BOARDS+1];
 WiFiConfig OpenSprinkler::wifi_config = {WIFI_MODE_AP, "", ""};
-IOEXP* OpenSprinkler::expanders[(MAX_EXT_BOARDS+1)/2];
-IOEXP* OpenSprinkler::mainio;
-IOEXP* OpenSprinkler::drio;
-RCSwitch OpenSprinkler::rfswitch;
+//IOEXP* OpenSprinkler::expanders[(MAX_EXT_BOARDS+1)/2];
+//IOEXP* OpenSprinkler::mainio;
+//IOEXP* OpenSprinkler::drio;
+//RCSwitch OpenSprinkler::rfswitch;
 extern ESP8266WebServer *wifi_server;
 extern char ether_buffer[];
 #endif
@@ -79,7 +79,7 @@ extern char ether_buffer[];
   extern SdFat sd;
 #elif defined(ESP8266)
   #include <FS.h>
-  SSD1306Display OpenSprinkler::lcd(0x3c, SDA, SCL);
+//  SSD1306Display OpenSprinkler::lcd(0x3c, SDA, SCL);
 #else
   // todo: LCD define for Linux-based systems
 #endif
@@ -375,7 +375,7 @@ byte OpenSprinkler::start_network() {
 
 #ifdef ESP8266
 
-  lcd_print_line_clear_pgm(PSTR("Starting..."), 1);
+//  lcd_print_line_clear_pgm(PSTR("Starting..."), 1);
   if(wifi_server) delete wifi_server;
   if(get_wifi_mode()==WIFI_MODE_AP) {
     wifi_server = new ESP8266WebServer(80);
@@ -387,7 +387,7 @@ byte OpenSprinkler::start_network() {
   
 #else
 
-  lcd_print_line_clear_pgm(PSTR("Connecting..."), 1);
+//  lcd_print_line_clear_pgm(PSTR("Connecting..."), 1);
   // new from 2.2: read hardware MAC
   if(!read_hardware_mac())
   {
@@ -430,7 +430,7 @@ byte OpenSprinkler::start_network() {
 
 /** Reboot controller */
 void OpenSprinkler::reboot_dev() {
-  lcd_print_line_clear_pgm(PSTR("Rebooting..."), 0);
+//  lcd_print_line_clear_pgm(PSTR("Rebooting..."), 0);
 #ifdef ESP8266
   ESP.restart();
 #else
@@ -486,6 +486,7 @@ void OpenSprinkler::update_dev() {
 /** Initialize LCD */
 void OpenSprinkler::lcd_start() {
 
+/*
 #ifdef ESP8266
   // initialize SSD1306
   lcd.init();
@@ -514,7 +515,7 @@ void OpenSprinkler::lcd_start() {
 #endif
 }
 #endif
-
+*/
 extern void flow_isr();
 /** Initialize pins, controller variables, LCD */
 void OpenSprinkler::begin() {
@@ -715,7 +716,7 @@ void OpenSprinkler::begin() {
     baseline_current = 100;
   #endif
 
-  lcd_start();
+//  lcd_start();
 
   #if !defined(ESP8266)
     // define lcd custom icons
@@ -801,7 +802,7 @@ void OpenSprinkler::begin() {
     }
   #else
     /* create custom characters */
-    lcd.createChar(0, _iconimage_connected);
+/*    lcd.createChar(0, _iconimage_connected);
     lcd.createChar(1, _iconimage_disconnected);
     lcd.createChar(2, _iconimage_sdcard);
     lcd.createChar(3, _iconimage_rain);
@@ -813,7 +814,7 @@ void OpenSprinkler::begin() {
     lcd.setCursor(0,0);
     lcd.print(F("Init file system"));
     lcd.setCursor(0,1);
-    if(!SPIFFS.begin()) {
+*/    if(!SPIFFS.begin()) {
       DEBUG_PRINTLN(F("SPIFFS failed"));
       status.has_sd = 0;
     } else {
@@ -1380,10 +1381,10 @@ void OpenSprinkler::switch_rfstation(RFStationData *data, bool turnon) {
   uint16_t length = parse_rfstation_code(data, &on, &off);
 #if defined(ARDUINO)
   #ifdef ESP8266
-  rfswitch.enableTransmit(PIN_RFTX);
-  rfswitch.setPulseLength(length);
-  rfswitch.setProtocol(1);
-  rfswitch.send(turnon ? on : off, 24);
+//  rfswitch.enableTransmit(PIN_RFTX);
+//  rfswitch.setPulseLength(length);
+//  rfswitch.setProtocol(1);
+//  rfswitch.send(turnon ? on : off, 24);
   #else
   send_rfsignal(turnon ? on : off, length);
   #endif
@@ -1651,8 +1652,8 @@ void OpenSprinkler::options_setup() {
   // if so, trigger a factory reset
   if (curr_ver != OS_FW_VERSION || nvm_read_byte((byte*)(ADDR_NVM_OPTIONS+OPTION_RESET))==0xAA)  {
 #if defined(ARDUINO)
-    lcd_print_line_clear_pgm(PSTR("Resetting..."), 0);
-    lcd_print_line_clear_pgm(PSTR("Please Wait..."), 1);
+//    lcd_print_line_clear_pgm(PSTR("Resetting..."), 0);
+//    lcd_print_line_clear_pgm(PSTR("Please Wait..."), 1);
 #else
     DEBUG_PRINT("resetting options...");
 #endif
@@ -1749,8 +1750,8 @@ void OpenSprinkler::options_setup() {
   #ifdef ESP8266
     // if BUTTON_2 is pressed during startup, go to Test OS mode
     // only available for OS 3.0
-    lcd_print_line_clear_pgm(PSTR("===Test Mode==="), 0);
-    lcd_print_line_clear_pgm(PSTR("  B3:proceed"), 1);
+//    lcd_print_line_clear_pgm(PSTR("===Test Mode==="), 0);
+//    lcd_print_line_clear_pgm(PSTR("  B3:proceed"), 1);
     do {
       button = button_read(BUTTON_WAIT_NONE);
     } while(!((button&BUTTON_MASK)==BUTTON_3 && (button&BUTTON_FLAG_DOWN)));
@@ -1770,14 +1771,14 @@ void OpenSprinkler::options_setup() {
 
 	case BUTTON_3:
   	// if BUTTON_3 is pressed during startup, enter Setup option mode
-    lcd_print_line_clear_pgm(PSTR("==Set Options=="), 0);
-    delay(DISPLAY_MSG_MS);
-    lcd_print_line_clear_pgm(PSTR("B1/B2:+/-, B3:->"), 0);
-    lcd_print_line_clear_pgm(PSTR("Hold B3 to save"), 1);
+ //   lcd_print_line_clear_pgm(PSTR("==Set Options=="), 0);
+ //   delay(DISPLAY_MSG_MS);
+ //   lcd_print_line_clear_pgm(PSTR("B1/B2:+/-, B3:->"), 0);
+ //   lcd_print_line_clear_pgm(PSTR("Hold B3 to save"), 1);
     do {
       button = button_read(BUTTON_WAIT_NONE);
     } while (!(button & BUTTON_FLAG_DOWN));
-    lcd.clear();
+//    lcd.clear();
     ui_set_options(0);
     if (options[OPTION_RESET]) {
       reboot_dev();
@@ -1786,9 +1787,9 @@ void OpenSprinkler::options_setup() {
   }
 
   // turn on LCD backlight and contrast
-  lcd_set_brightness();
-  lcd_set_contrast();
-
+//  lcd_set_brightness();
+//  lcd_set_contrast();
+/*
   if (!button) {
     // flash screen
     lcd_print_line_clear_pgm(PSTR(" OpenSprinkler"),0);
@@ -1825,7 +1826,7 @@ void OpenSprinkler::options_setup() {
   }
 #endif
 }
-
+*/
 /** Load non-volatile controller status data from internal NVM */
 void OpenSprinkler::nvdata_load() {
   nvm_read_block(&nvdata, (void*)ADDR_NVM_NVCONDATA, sizeof(NVConData));
@@ -1927,7 +1928,7 @@ void OpenSprinkler::lcd_print_pgm(PGM_P PROGMEM str) {
 #endif
   uint8_t c;
   while((c=pgm_read_byte(str++))!= '\0') {
-    lcd.print((char)c);
+//    lcd.print((char)c);
   }
 }
 
@@ -1937,25 +1938,25 @@ void OpenSprinkler::lcd_print_line_clear_pgm(PGM_P str, byte line) {
 #else
 void OpenSprinkler::lcd_print_line_clear_pgm(PGM_P PROGMEM str, byte line) {
 #endif
-  lcd.setCursor(0, line);
+//  lcd.setCursor(0, line);
   uint8_t c;
   int8_t cnt = 0;
   while((c=pgm_read_byte(str++))!= '\0') {
-    lcd.print((char)c);
+//    lcd.print((char)c);
     cnt++;
   }
-  for(; (16-cnt) >= 0; cnt ++) lcd_print_pgm(PSTR(" "));
+//  for(; (16-cnt) >= 0; cnt ++) lcd_print_pgm(PSTR(" "));
 }
 
 void OpenSprinkler::lcd_print_2digit(int v)
 {
-  lcd.print((int)(v/10));
-  lcd.print((int)(v%10));
+//  lcd.print((int)(v/10));
+//  lcd.print((int)(v%10));
 }
 
 /** print time to a given line */
 void OpenSprinkler::lcd_print_time(time_t t)
-{
+{/*
   lcd.setCursor(0, 0);
   lcd_print_2digit(hour(t));
   lcd_print_pgm(PSTR(":"));
@@ -1967,25 +1968,26 @@ void OpenSprinkler::lcd_print_time(time_t t)
   lcd_print_2digit(month(t));
   lcd_print_pgm(PSTR("-"));
   lcd_print_2digit(day(t));
+*/
 }
 
 /** print ip address */
 void OpenSprinkler::lcd_print_ip(const byte *ip, byte endian) {
 #ifdef ESP8266
-  lcd.clear(0, 1);
+//  lcd.clear(0, 1);
 #else
-  lcd.clear();
+//  lcd.clear();
 #endif
-  lcd.setCursor(0, 0);
+//  lcd.setCursor(0, 0);
   for (byte i=0; i<4; i++) {
-    lcd.print(endian ? (int)ip[3-i] : (int)ip[i]);
-    if(i<3) lcd_print_pgm(PSTR("."));
+//    lcd.print(endian ? (int)ip[3-i] : (int)ip[i]);
+//    if(i<3) lcd_print_pgm(PSTR("."));
   }
 }
 
 /** print mac address */
 void OpenSprinkler::lcd_print_mac(const byte *mac) {
-  lcd.setCursor(0, 0);
+/*  lcd.setCursor(0, 0);
   for(byte i=0; i<6; i++) {
     if(i)  lcd_print_pgm(PSTR("-"));
     lcd.print((mac[i]>>4), HEX);
@@ -1993,11 +1995,11 @@ void OpenSprinkler::lcd_print_mac(const byte *mac) {
     if(i==4) lcd.setCursor(0, 1);
   }
   lcd_print_pgm(PSTR(" (MAC)"));
-}
+*/}
 
 /** print station bits */
 void OpenSprinkler::lcd_print_station(byte line, char c) {
-  lcd.setCursor(0, line);
+/*  lcd.setCursor(0, line);
   if (status.display_board == 0) {
     lcd_print_pgm(PSTR("MC:"));  // Master controller is display as 'MC'
   }
@@ -2048,11 +2050,11 @@ void OpenSprinkler::lcd_print_station(byte line, char c) {
 	#else
   lcd.write(status.network_fails>2?1:0);  // if network failure detection is more than 2, display disconnect icon
   #endif
-}
+*/}
 
 /** print a version number */
 void OpenSprinkler::lcd_print_version(byte v) {
-  if(v > 99) {
+/*  if(v > 99) {
     lcd.print(v/100);
     lcd.print(".");
   }
@@ -2061,11 +2063,11 @@ void OpenSprinkler::lcd_print_version(byte v) {
     lcd.print(".");
   }
   lcd.print(v%10);
-}
+*/}
 
 /** print an option value */
 void OpenSprinkler::lcd_print_option(int i) {
-  // each prompt string takes 16 characters
+/*  // each prompt string takes 16 characters
   strncpy_P0(tmp_buffer, op_prompts+16*i, 16);
   lcd.setCursor(0, 0);
   lcd.print(tmp_buffer);
@@ -2144,7 +2146,7 @@ void OpenSprinkler::lcd_print_option(int i) {
   if (i==OPTION_WATER_PERCENTAGE)  lcd_print_pgm(PSTR("%"));
   else if (i==OPTION_MASTER_ON_ADJ || i==OPTION_MASTER_OFF_ADJ || i==OPTION_MASTER_ON_ADJ_2 || i==OPTION_MASTER_OFF_ADJ_2)
     lcd_print_pgm(PSTR(" sec"));
-  
+*/  
 }
 
 
@@ -2248,39 +2250,40 @@ void OpenSprinkler::ui_set_options(int oid)
           i = (i+1) % NUM_OPTIONS;
         }
         if(i==OPTION_SEQUENTIAL_RETIRED) i++;
-        #if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) || defined(ESP8266)
+/*        #if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) || defined(ESP8266)
         else if (hw_type==HW_TYPE_AC && i==OPTION_BOOST_TIME) i++;  // skip boost time for non-DC controller
         #ifdef ESP8266
         else if (lcd.type()==LCD_I2C && i==OPTION_LCD_CONTRAST) i+=3;
         #else
         else if (lcd.type()==LCD_I2C && i==OPTION_LCD_CONTRAST) i+=2;
         #endif
-        #endif      
+*/        #endif      
       }
       break;
     }
 
     if (button != BUTTON_NONE) {
-      lcd_print_option(i);
+//      lcd_print_option(i);
     }
   }
-  lcd.noBlink();
+//  lcd.noBlink();
 }
 
 /** Set LCD contrast (using PWM) */
 void OpenSprinkler::lcd_set_contrast() {
 #ifdef PIN_LCD_CONTRAST
-  // set contrast is only valid for standard LCD
+/*  // set contrast is only valid for standard LCD
   if (lcd.type()==LCD_STD) {
     pinMode(PIN_LCD_CONTRAST, OUTPUT);
     analogWrite(PIN_LCD_CONTRAST, options[OPTION_LCD_CONTRAST]);
   }
+*/
 #endif
 }
 
 /** Set LCD brightness (using PWM) */
 void OpenSprinkler::lcd_set_brightness(byte value) {
-#ifdef PIN_LCD_BACKLIGHT
+/* #ifdef PIN_LCD_BACKLIGHT
   #if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__)
   if (lcd.type()==LCD_I2C) {
     if (value) lcd.backlight();
@@ -2301,13 +2304,13 @@ void OpenSprinkler::lcd_set_brightness(byte value) {
     }
   }
 #endif
-}
+*/}
 #endif  // end of LCD and button functions
 
 #ifdef ESP8266
 #include "images.h"
 void OpenSprinkler::flash_screen() {
-  lcd.setCursor(0, -1);
+/*  lcd.setCursor(0, -1);
   lcd.print(F(" OpenSprinkler"));
   lcd.drawXbm(34, 24, WiFi_Logo_width, WiFi_Logo_height, (const byte*) WiFi_Logo_image);
   lcd.setCursor(0, 2);  
@@ -2315,20 +2318,20 @@ void OpenSprinkler::flash_screen() {
   delay(1500);
   lcd.clear();
   lcd.display();
-}
+*/}
 
 void OpenSprinkler::toggle_screen_led() {
   static byte status = 0;
   status = 1-status;
-  set_screen_led(!status);
+//  set_screen_led(!status);
 }
 
 void OpenSprinkler::set_screen_led(byte status) {
-  lcd.setColor(status ? WHITE : BLACK);
+/*  lcd.setColor(status ? WHITE : BLACK);
   lcd.fillCircle(122, 58, 4);
   lcd.display();
   lcd.setColor(WHITE);
-}
+*/}
 
 void OpenSprinkler::reset_to_ap() {
   wifi_config.mode = WIFI_MODE_AP;
