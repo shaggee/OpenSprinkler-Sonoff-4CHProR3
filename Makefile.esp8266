@@ -18,7 +18,7 @@
 #====================================================================================
 
 #=== Project specific definitions: sketch and list of needed libraries
-SKETCH ?= ./examples/mainArduino/mainArduino.ino
+SKETCH ?= ./OpenSprinkler-Firmware.ino
 LIBS ?= $(ESP_LIBS)/Wire \
 	$(ESP_LIBS)/ESP8266WiFi \
 	$(ESP_LIBS)/ESP8266WebServer \
@@ -27,7 +27,7 @@ LIBS ?= $(ESP_LIBS)/Wire \
 	.
 
 # Esp8266 Arduino git location. Change ESP_ROOT to match your path
-ESP_ROOT ?= $(HOME)/esp8266/
+ESP_ROOT ?= $(HOME)/workspace/esp8266/
 # Output directory
 BUILD_ROOT ?= /tmp/$(MAIN_NAME)
 

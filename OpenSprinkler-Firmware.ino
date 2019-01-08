@@ -1,8 +1,7 @@
 //#include <Wire.h>
 
 #include <FS.h>
-
-#include <OpenSprinkler.h>
+#include "OpenSprinkler.h"
 
 extern OpenSprinkler os;
 

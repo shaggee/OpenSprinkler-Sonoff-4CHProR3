@@ -27,11 +27,7 @@
 typedef unsigned char byte;
 typedef unsigned long ulong;
 
-#if !defined(ARDUINO) || defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) || defined(ESP8266)
   #define TMP_BUFFER_SIZE      255   // scratch buffer size
-#else
-  #define TMP_BUFFER_SIZE      128   // scratch buffer size
-#endif
 
 /** Firmware version, hardware version, and maximal values */
 #define OS_FW_VERSION  218  // Firmware version: 218 means 2.1.8
@@ -85,8 +81,6 @@ typedef unsigned long ulong;
 #define SENSOR_TYPE_OTHER   0xFF
 
 /** WiFi related defines */
-#ifdef ESP8266
-
 #define WIFI_MODE_AP       0xA9
 #define WIFI_MODE_STA      0x2A
 
@@ -98,62 +92,8 @@ typedef unsigned long ulong;
 #define LED_FAST_BLINK 100
 #define LED_SLOW_BLINK 500
 
-#endif
-
 /** Non-volatile memory (NVM) defines */
-#if defined(ARDUINO) && !defined(ESP8266)
-
-/** 2KB NVM (ATmega644) data structure:
-  * |         |     |  ---STRING PARAMETERS---      |           |   ----STATION ATTRIBUTES-----      |          |
-  * | PROGRAM | CON | PWD | LOC | JURL | WURL | KEY | STN_NAMES | MAS | IGR | MAS2 | DIS | SEQ | SPE | OPTIONS  |
-  * |  (986)  |(12) |(36) |(48) | (40) | (40) |(24) |   (768)   | (6) | (6) |  (6) | (6) | (6) | (6) |  (58)    |
-  * |         |     |     |     |      |      |     |           |     |     |      |     |     |     |          |
-  * 0        986  998   1034  1082  1122   1162   1186        1954  1960  1966   1972  1978  1984  1990      2048
-  */
-
-/** 4KB NVM (ATmega1284) data structure:
-  * |         |     |  ---STRING PARAMETERS---      |           |   ----STATION ATTRIBUTES-----      |          |
-  * | PROGRAM | CON | PWD | LOC | JURL | WURL | KEY | STN_NAMES | MAS | IGR | MAS2 | DIS | SEQ | SPE | OPTIONS  |
-  * |  (2433) |(12) |(36) |(48) | (48) | (48) |(24) |   (1344)  | (7) | (7) |  (7) | (7) | (7) | (7) |   (61)   |
-  * |         |     |     |     |      |      |     |           |     |     |      |     |     |     |          |
-  * 0       2433  2445   2481  2529  2577   2625   2649        3993  4000  4007   4014  4021  4028  4035      4096
-  */
-
-  #if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) // for 4KB NVM
-
-    #define MAX_EXT_BOARDS    6  // maximum number of exp. boards (each expands 8 stations)
-    #define MAX_NUM_STATIONS  ((1+MAX_EXT_BOARDS)*8)  // maximum number of stations
-
-    #define NVM_SIZE            4096  // For AVR, nvm data is stored in EEPROM, ATmega1284 has 4K EEPROM
-    #define STATION_NAME_SIZE   24    // maximum number of characters in each station name
-
-    #define MAX_PROGRAMDATA     2433  // program data
-    #define MAX_NVCONDATA       12    // non-volatile controller data
-    #define MAX_USER_PASSWORD   36    // user password
-    #define MAX_LOCATION        48    // location string
-    #define MAX_JAVASCRIPTURL   48    // javascript url
-    #define MAX_WEATHERURL      48    // weather script url
-    #define MAX_WEATHER_KEY     24    // weather api key
-
-  #else
-
-    #define MAX_EXT_BOARDS    5  // maximum number of exp. boards (each expands 8 stations)
-    #define MAX_NUM_STATIONS  ((1+MAX_EXT_BOARDS)*8)  // maximum number of stations
-
-    #define NVM_SIZE            2048  // For AVR, nvm data is stored in EEPROM, ATmega644 has 2K EEPROM
-    #define STATION_NAME_SIZE   16    // maximum number of characters in each station name
-
-    #define MAX_PROGRAMDATA     986   // program data
-    #define MAX_NVCONDATA       12     // non-volatile controller data
-    #define MAX_USER_PASSWORD   36    // user password
-    #define MAX_LOCATION        48    // location string
-    #define MAX_JAVASCRIPTURL   40    // javascript url
-    #define MAX_WEATHERURL      40    // weather script url
-    #define MAX_WEATHER_KEY     24    // weather api key,
-
-  #endif
-
-#else // NVM defines for RPI/BBB/LINUX/ESP8266
+ // NVM defines for RPI/BBB/LINUX/ESP8266
 
 /** 8KB NVM (RPI/BBB/LINUX/ESP8266) data structure:
   * |         |     |  ---STRING PARAMETERS---      |           |   ----STATION ATTRIBUTES-----      |          |
@@ -167,8 +107,8 @@ typedef unsigned long ulong;
   // But they can be increased if needed
   #define NVM_FILENAME        "nvm.dat" // for RPI/BBB, nvm data is stored in a file
 
-  #define MAX_EXT_BOARDS    8  // maximum number of 8-station exp. boards (a 16-station expander counts as 2)
-  #define MAX_NUM_STATIONS  ((1+MAX_EXT_BOARDS)*8)  // maximum number of stations
+  #define MAX_EXT_BOARDS    0  // maximum number of 8-station exp. boards (a 16-station expander counts as 2)
+  #define MAX_NUM_STATIONS  ((1+MAX_EXT_BOARDS)*4)  // maximum number of stations
 
   #define NVM_SIZE            8192
   #define STATION_NAME_SIZE   24    // maximum number of characters in each station name
@@ -181,7 +121,6 @@ typedef unsigned long ulong;
   #define MAX_WEATHERURL      48    // weather script url
   #define MAX_WEATHER_KEY     24    // weather api key
 
-#endif  // end of NVM defines
 
 /** NVM data addresses */
 #define ADDR_NVM_PROGRAMS      (0)   // program starting address
@@ -278,109 +217,23 @@ typedef enum {
 #undef OS_HW_VERSION
 
 /** Hardware defines */
-#if defined(ARDUINO) && !defined(ESP8266)
-
-  #if F_CPU==8000000L // 8M for OS20
-    #define OS_HW_VERSION (OS_HW_VERSION_BASE+20)
-  #elif F_CPU==12000000L  // 12M for OS21
-    #define OS_HW_VERSION (OS_HW_VERSION_BASE+21)
-  #elif F_CPU==16000000L  // 16M for OS22 and OS23
-    #if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__)
-      #define OS_HW_VERSION (OS_HW_VERSION_BASE+23)
-      #define PIN_FREE_LIST		{2,10,12,13,14,15,18,19}  // Free GPIO pins
-    #else
-      #define OS_HW_VERSION (OS_HW_VERSION_BASE+22)
-    #endif
-  #endif
-
-  // hardware pins
-  #define PIN_BUTTON_1      31    // button 1
-  #define PIN_BUTTON_2      30    // button 2
-  #define PIN_BUTTON_3      29    // button 3
-  #define PIN_RFTX          28    // RF data pin
-  #define PORT_RF        PORTA
-  #define PINX_RF        PINA3
-  #define PIN_SR_LATCH       3    // shift register latch pin
-  #define PIN_SR_DATA       21    // shift register data pin
-  #define PIN_SR_CLOCK      22    // shift register clock pin
-  #define PIN_SR_OE          1    // shift register output enable pin
-
-  // regular 16x2 LCD pin defines
-  #define PIN_LCD_RS        19    // LCD rs pin
-  #define PIN_LCD_EN        18    // LCD enable pin
-  #define PIN_LCD_D4        20    // LCD d4 pin
-  #define PIN_LCD_D5        21    // LCD d5 pin
-  #define PIN_LCD_D6        22    // LCD d6 pin
-  #define PIN_LCD_D7        23    // LCD d7 pin
-  #define PIN_LCD_BACKLIGHT 12    // LCD backlight pin
-  #define PIN_LCD_CONTRAST  13    // LCD contrast pin
-
-  // DC controller pin defines
-  #define PIN_BOOST         20    // booster pin
-  #define PIN_BOOST_EN      23    // boost voltage enable pin
-
-  #define PIN_ETHER_CS       4    // Ethernet controller chip select pin
-  #define PIN_SD_CS          0    // SD card chip select pin
-  #define PIN_RAINSENSOR    11    // rain sensor is connected to pin D3
-  #define PIN_FLOWSENSOR    11    // flow sensor (currently shared with rain sensor, change if using a different pin)
-  #define PIN_FLOWSENSOR_INT 1    // flow sensor interrupt pin (INT1)
-  #define PIN_EXP_SENSE      4    // expansion board sensing pin (A4)
-  #define PIN_CURR_SENSE     7    // current sensing pin (A7)
-  #define PIN_CURR_DIGITAL  24    // digital pin index for A7
-
-  // Ethernet buffer size
-  #if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__)
-    #define ETHER_BUFFER_SIZE   1400 // ATmega1284 has 16K RAM, so use a bigger buffer
-  #else
-    #define ETHER_BUFFER_SIZE   950  // ATmega644 has 4K RAM, so use a smaller buffer
-  #endif
-
-  #define 	wdt_reset()   __asm__ __volatile__ ("wdr")  // watchdog timer reset
-
-  //#define SERIAL_DEBUG
-  #if defined(SERIAL_DEBUG) /** Serial debug functions */
-
-    #define DEBUG_BEGIN(x)   Serial.begin(x)
-    #define DEBUG_PRINT(x)   Serial.print(x)
-    #define DEBUG_PRINTLN(x) Serial.println(x)
-    #define DEBUG_PRINTIP(x) ether.printIp("IP:",x)
-
-  #else
-
-    #define DEBUG_BEGIN(x)   {}
-    #define DEBUG_PRINT(x)   {}
-    #define DEBUG_PRINTLN(x) {}
-    #define DEBUG_PRINTIP(x) {}
-
-  #endif
-  typedef unsigned char   uint8_t;
-  typedef unsigned int    uint16_t;
-  typedef int int16_t;
-  #define pinModeExt      pinMode
-  #define digitalReadExt  digitalRead
-  #define digitalWriteExt digitalWrite  
-
-#else // Hardware defines for RPI/BBB/ESP8266
-
-  #if defined(ESP8266)
+// Hardware defines for RPI/BBB/ESP8266
 
     #define OS_HW_VERSION    (OS_HW_VERSION_BASE+30)
-    #define IOEXP_PIN        0x80 // base for pins on main IO expander
-    #define MAIN_I2CADDR     0x20 // main IO expander I2C address
-    #define ACDR_I2CADDR     0x21 // ac driver I2C address
-    #define DCDR_I2CADDR     0x22 // dc driver I2C address
-    #define LADR_I2CADDR     0x23 // latch driver I2C address
-    #define EXP_I2CADDR_BASE 0x24 // base of expander I2C address
-    #define LCD_I2CADDR      0x3C // 128x64 OLED display I2C address
 
     #define PIN_CURR_SENSE    A0
     #define PIN_FREE_LIST     {} // no free GPIO pin at the moment
     #define ETHER_BUFFER_SIZE   4096
 
-    /* To accommodate different OS30 versions, we use software defines pins */ 
     extern byte PIN_BUTTON_1;
     extern byte PIN_BUTTON_2;
     extern byte PIN_BUTTON_3;
+    extern byte PIN_BUTTON_4;
+    extern byte PIN_RELAY_1;
+    extern byte PIN_RELAY_2;
+    extern byte PIN_RELAY_3;
+    extern byte PIN_RELAY_4;
+    extern byte PIN_LED;
     extern byte PIN_RFRX;
     extern byte PIN_RFTX;
     extern byte PIN_BOOST;
@@ -390,135 +243,19 @@ typedef enum {
     extern byte PIN_SENSOR2;
     extern byte PIN_RAINSENSOR;
     extern byte PIN_FLOWSENSOR;
-    extern byte PIN_IOEXP_INT;
-
-    /* Original OS30 pin defines */
-    //#define V0_MAIN_INPUTMASK 0b00001010 // main input pin mask
-    // pins on main PCF8574 IO expander have pin numbers IOEXP_PIN+i
-    #define V0_PIN_BUTTON_1      IOEXP_PIN+1 // button 1
-    #define V0_PIN_BUTTON_2      0           // button 2
-    #define V0_PIN_BUTTON_3      IOEXP_PIN+3 // button 3
-    #define V0_PIN_RFRX          14
-    #define V0_PIN_PWR_RX        IOEXP_PIN+0
-    #define V0_PIN_RFTX          16
-    #define V0_PIN_PWR_TX        IOEXP_PIN+2
-    #define V0_PIN_BOOST         IOEXP_PIN+6
-    #define V0_PIN_BOOST_EN      IOEXP_PIN+7
-    #define V0_PIN_SENSOR1       12 // sensor 1
-    #define V0_PIN_SENSOR2       13 // sensor 2
-    #define V0_PIN_RAINSENSOR    V0_PIN_SENSOR1 // for this firmware, rain and flow sensors are both assumed on sensor 1
-    #define V0_PIN_FLOWSENSOR    V0_PIN_SENSOR1
-
-    /* OS30 revision 1 pin defines */
-    // pins on PCA9555A IO expander have pin numbers IOEXP_PIN+i
-    #define V1_IO_CONFIG         0x1F00 // config bits
-    #define V1_IO_OUTPUT         0x1F00 // output bits
-    #define V1_PIN_BUTTON_1      IOEXP_PIN+10 // button 1
-    #define V1_PIN_BUTTON_2      IOEXP_PIN+11 // button 2
-    #define V1_PIN_BUTTON_3      IOEXP_PIN+12 // button 3
-    #define V1_PIN_RFRX          14
-    #define V1_PIN_RFTX          16
-    #define V1_PIN_IOEXP_INT     12
-    #define V1_PIN_BOOST         IOEXP_PIN+13
-    #define V1_PIN_BOOST_EN      IOEXP_PIN+14
-    #define V1_PIN_LATCH_COM     IOEXP_PIN+15
-    #define V1_PIN_SENSOR1       IOEXP_PIN+8 // sensor 1
-    #define V1_PIN_SENSOR2       IOEXP_PIN+9 // sensor 2
-    #define V1_PIN_RAINSENSOR    V1_PIN_SENSOR1 // for this firmware, rain and flow sensors are both assumed on sensor 1
-    #define V1_PIN_FLOWSENSOR    V1_PIN_SENSOR1
-
-  /** OSPi pin defines */
-  #elif defined(OSPI)
-
-    #define OS_HW_VERSION    OSPI_HW_VERSION_BASE
-    #define PIN_SR_LATCH      22    // shift register latch pin
-    #define PIN_SR_DATA       27    // shift register data pin
-    #define PIN_SR_DATA_ALT   21    // shift register data pin (alternative, for RPi 1 rev. 1 boards)
-    #define PIN_SR_CLOCK       4    // shift register clock pin
-    #define PIN_SR_OE         17    // shift register output enable pin
-    #define PIN_RAINSENSOR    14    // rain sensor
-    #define PIN_FLOWSENSOR    14    // flow sensor (currently shared with rain sensor, change if using a different pin)
-    #define PIN_RFTX          15    // RF transmitter pin
-    #define PIN_BUTTON_1      23    // button 1
-    #define PIN_BUTTON_2      24    // button 2
-    #define PIN_BUTTON_3      25    // button 3
-
-    #define PIN_FREE_LIST		{5,6,7,8,9,10,11,12,13,16,18,19,20,21,23,24,25,26}  // free GPIO pins
-    #define ETHER_BUFFER_SIZE   16384
-  /** BBB pin defines */
-  #elif defined(OSBO)
-
-    #define OS_HW_VERSION    OSBO_HW_VERSION_BASE
-    // these are gpio pin numbers, refer to
-    // https://github.com/mkaczanowski/BeagleBoneBlack-GPIO/blob/master/GPIO/GPIOConst.cpp
-    #define PIN_SR_LATCH      60    // P9_12, shift register latch pin
-    #define PIN_SR_DATA       30    // P9_11, shift register data pin
-    #define PIN_SR_CLOCK      31    // P9_13, shift register clock pin
-    #define PIN_SR_OE         50    // P9_14, shift register output enable pin
-    #define PIN_RAINSENSOR    48    // P9_15, rain sensor is connected to pin D3
-    #define PIN_FLOWSENSOR    48    // flow sensor (currently shared with rain sensor, change if using a different pin)
-    #define PIN_RFTX          51    // RF transmitter pin
-    
-    #define PIN_FREE_LIST     {38,39,34,35,45,44,26,47,27,65,63,62,37,36,33,32,61,86,88,87,89,76,77,74,72,73,70,71}
-    #define ETHER_BUFFER_SIZE   16384
-  #else
-    // For Linux or other software simulators
-    // use fake hardware pins
-    #if defined(DEMO)
-      #define OS_HW_VERSION 255   // assign hardware number 255 to DEMO firmware
-    #else
-      #define OS_HW_VERSION SIM_HW_VERSION_BASE
-    #endif
-    #define PIN_SR_LATCH    0
-    #define PIN_SR_DATA     0
-    #define PIN_SR_CLOCK    0
-    #define PIN_SR_OE       0
-    #define PIN_RAINSENSOR  0
-    #define PIN_FLOWSENSOR  0
-    #define PIN_RFTX     0
-  	#define PIN_FREE_LIST	{}
-    #define ETHER_BUFFER_SIZE   16384
-  #endif
 
   #define ENABLE_DEBUG
   #if defined(ENABLE_DEBUG)
-    #if defined(ESP8266)
       #define DEBUG_BEGIN(x)   Serial.begin(x)
       #define DEBUG_PRINT(x)   Serial.print(x)
       #define DEBUG_PRINTLN(x) Serial.println(x)
     #else
-      #define DEBUG_BEGIN(x)          {}  /** Serial debug functions */
-      inline  void DEBUG_PRINT(int x) {printf("%d", x);}
-      inline  void DEBUG_PRINT(const char*s) {printf("%s", s);}
-      #define DEBUG_PRINTLN(x)        {DEBUG_PRINT(x);printf("\n");}
-    #endif
-  #else
     #define DEBUG_BEGIN(x) {}
     #define DEBUG_PRINT(x) {}
     #define DEBUG_PRINTLN(x) {}
   #endif
 
-  /** Re-define avr-specific (e.g. PGM) types to use standard types */
-  #if !defined(ESP8266)
-    inline void itoa(int v,char *s,int b)   {sprintf(s,"%d",v);}
-    inline void ultoa(unsigned long v,char *s,int b) {sprintf(s,"%lu",v);}
-    #define now()       time(0)
-    #define pgm_read_byte(x) *(x)
-    #define PSTR(x)      x
-    #define strcat_P     strcat
-    #define strcpy_P     strcpy
-    #define PROGMEM
-    typedef const char* PGM_P;
-    typedef unsigned char   uint8_t;
-    typedef short           int16_t;
-    typedef unsigned short  uint16_t;
-    typedef bool boolean;
-    #define pinModeExt      pinMode
-    #define digitalReadExt  digitalRead
-    #define digitalWriteExt digitalWrite
-  #endif
-
-#endif  // end of Hardawre defines
+// end of Hardawre defines
 
 /** Other defines */
 // button values
@@ -544,6 +281,6 @@ typedef enum {
 
 #define DISPLAY_MSG_MS      2000  // message display time (milliseconds)
 
-#endif  // _DEFINES_H
+#endif// _DEFINES_H
 
 

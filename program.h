@@ -27,18 +27,8 @@
 
 #define MAX_NUM_STARTTIMES  4
 
-#if defined(ARDUINO)
-  #if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) // for 4KB NVM
-    #define PROGRAM_NAME_SIZE   20
-    #define RUNTIME_QUEUE_SIZE  MAX_NUM_STATIONS
-  #else
-    #define PROGRAM_NAME_SIZE   16
-    #define RUNTIME_QUEUE_SIZE  MAX_NUM_STATIONS
-  #endif
-#else
-  #define PROGRAM_NAME_SIZE   20
-  #define RUNTIME_QUEUE_SIZE  MAX_NUM_STATIONS
-#endif
+#define PROGRAM_NAME_SIZE   16
+#define RUNTIME_QUEUE_SIZE  MAX_NUM_STATIONS
 
 #include "OpenSprinkler.h"
 

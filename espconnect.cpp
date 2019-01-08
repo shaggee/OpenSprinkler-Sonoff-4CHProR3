@@ -17,7 +17,6 @@
  * along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-#ifdef ESP8266
 
 #include "espconnect.h"
 
@@ -69,4 +68,3 @@ void start_network_sta(const char *ssid, const char *pass) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
 }
-#endif

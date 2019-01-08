@@ -25,31 +25,16 @@
 #ifndef _OPENSPRINKLER_H
 #define _OPENSPRINKLER_H
 
-#if defined(ARDUINO) && !defined(ESP8266) // headers for AVR
-  #include "Arduino.h"
-  #include <avr/eeprom.h>
-  #include <Wire.h>
-  #include "LiquidCrystal.h"
-  #include "Time.h"
-  #include "DS1307RTC.h"
-  #include "EtherCard.h"
-#elif defined(ESP8266) // headers for ESP8266
-  #include <Wire.h>
-  #include <FS.h>
-  #include <RCSwitch.h>
-  #include "SSD1306Display.h"
-  #include "i2crtc.h"
-  #include "espconnect.h"
-#else // headers for RPI/BBB/LINUX
-  #include <time.h>
-  #include <string.h>
-  #include <unistd.h>
-  #include "etherport.h"
-#endif // end of headers
+//#include <Wire.h>
+#include <FS.h>
+//#include <RCSwitch.h>
+//#include "SSD1306Display.h"
+//#include "i2crtc.h"
+#include "espconnect.h"
 
 #include "defines.h"
 #include "utils.h"
-#include "gpio.h"
+//#include "gpio.h"
   
 /** Non-volatile data */
 struct NVConData {
@@ -117,32 +102,17 @@ extern const char stns_filename[];
 extern const char ifkey_filename[];
 extern const byte op_max[];
 extern const char op_json_names[];
-#ifdef ESP8266
 struct WiFiConfig {
   byte mode;
   String ssid;
   String pass;
 };  
 extern const char wifi_filename[];
-#endif
 
 class OpenSprinkler {
 public:
 
   // data members
-#if defined(ARDUINO) && !defined(ESP8266)
-  static LiquidCrystal lcd; // 16x2 character LCD
-#elif defined(ESP8266)
-  static SSD1306Display lcd;  // 128x64 OLED display
-#else
-  // todo: LCD define for RPI/BBB
-#endif
-
-#if defined(OSPI)
-  static byte pin_sr_data;    // RPi shift register data pin
-                              // to handle RPi rev. 1
-#endif
-
   static NVConData nvdata;
   static ConStatus status;
   static ConStatus old_status;
@@ -171,9 +141,7 @@ public:
   static void reboot_dev();   // reboot the microcontroller
   static void begin();        // initialization, must call this function before calling other functions
   static byte start_network();  // initialize network with the given mac and port
-#if defined(ARDUINO)
   static bool read_hardware_mac();  // read hardware mac address
-#endif
   static time_t now_tz();
   // -- station names and attributes
   static void get_station_name(byte sid, char buf[]); // get station name
@@ -204,11 +172,8 @@ public:
   static void raindelay_stop();   // stop rain delay
   static void rainsensor_status();// update rainsensor status
   static bool programswitch_status(ulong); // get program switch status
-#if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) || defined(ESP8266)
   static uint16_t read_current(); // read current sensing value
   static uint16_t baseline_current; // resting state current
-#endif
-  static int detect_exp();        // detect the number of expansion boards
   static byte weekday_today();    // returns index of today's weekday (Monday is 0)
 
   static byte set_station_bit(byte sid, byte value); // set station bit of one station (sid->station index, value->0/1)
@@ -217,14 +182,8 @@ public:
   static void apply_all_station_bits(); // apply all station bits (activate/deactive values)
 
   // -- LCD functions
-#if defined(ARDUINO) // LCD functions for Arduino
-  #ifdef ESP8266
   static void lcd_print_pgm(PGM_P str); // ESP8266 does not allow PGM_P followed by PROGMEM
   static void lcd_print_line_clear_pgm(PGM_P str, byte line);
-  #else
-  static void lcd_print_pgm(PGM_P PROGMEM str);           // print a program memory string
-  static void lcd_print_line_clear_pgm(PGM_P PROGMEM str, byte line);
-  #endif
   static void lcd_print_time(time_t t);                  // print current time
   static void lcd_print_ip(const byte *ip, byte endian);    // print ip
   static void lcd_print_mac(const byte *mac);             // print mac
@@ -232,6 +191,7 @@ public:
   static void lcd_print_version(byte v);                   // print version number
 
   // -- UI and buttons
+  static void led_blink();
   static byte button_read(byte waitmode); // Read button value. options for 'waitmodes' are:
                                           // BUTTON_WAIT_NONE, BUTTON_WAIT_RELEASE, BUTTON_WAIT_HOLD
                                           // return values are 'OR'ed with flags
@@ -239,32 +199,18 @@ public:
 
   // -- UI functions --
   static void ui_set_options(int oid);    // ui for setting options (oid-> starting option index)
-  static void lcd_set_brightness(byte value=1);
-  static void lcd_set_contrast();
-
-  #ifdef ESP8266
+  
   static WiFiConfig wifi_config;
-  static IOEXP *mainio, *drio;
-  static IOEXP *expanders[];
-  static RCSwitch rfswitch;
-  static void detect_expanders();
-  static void flash_screen();
-  static void toggle_screen_led();
-  static void set_screen_led(byte status);  
+  //static RCSwitch rfswitch;
   static byte get_wifi_mode() {return wifi_config.mode;}
   static void config_ip();
   static void reset_to_ap();
   static byte state;
-  #endif  
 private:
   static void lcd_print_option(int i);  // print an option to the lcd
   static void lcd_print_2digit(int v);  // print a integer in 2 digits
-  static void lcd_start();
   static byte button_read_busy(byte pin_butt, byte waitmode, byte butt, byte is_holding);
-#if defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) || defined(ESP8266)
   static byte engage_booster;
-#endif
-#if defined(ESP8266)
   static void latch_boost();
   static void latch_open(byte sid);
   static void latch_close(byte sid);
@@ -272,8 +218,7 @@ private:
   static void latch_setallzonepins(byte value);
   static void latch_apply_all_station_bits();
   static byte prev_station_bits[];
-#endif
-#endif // LCD functions
+// LCD functions
 };
 
-#endif  // _OPENSPRINKLER_H
+#endif // _OPENSPRINKLER_H

@@ -7,19 +7,16 @@ LIBS = .\
   $(ESP_LIBS)/SSD1306 \
   $(ESP_LIBS)/rc-switch \
 
-ESP_ROOT = $(HOME)/esp8266_2.4/
+ESP_ROOT = $(HOME)/workspace/esp8266_2.4/
 BUILD_ROOT = /tmp/$(MAIN_NAME)
 
-UPLOAD_SPEED = 230400
+UPLOAD_SPEED = 115200
 UPLOAD_VERB = -v
-# for OS3.0 revision 1: reset mode is nodemcu
 UPLOAD_RESET = nodemcu
-# Uncomment the line below for OS3.0 revision 0: reset mode is ck
-# UPLOAD_RESET = ck
 
 FLASH_DEF = 4M3M
-FLASH_MODE = dio
-FLASH_SPEED = 80  
+FLASH_MODE = dout
+FLASH_SPEED = 40 
 F_CPU = 160000000L
 
 BOARD = generic
