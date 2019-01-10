@@ -26,14 +26,14 @@
 #include "server.h"
 
 // External variables defined in main ion file
-    #include <FS.h>
-    #include "espconnect.h"
-    #define INSERT_DELAY(x) {}
-    
-    extern ESP8266WebServer *wifi_server;
-    extern char ether_buffer[];
+#include <FS.h>
+#include "espconnect.h"
+#define INSERT_DELAY(x) {}
+#include <time.h>    
+extern ESP8266WebServer *wifi_server;
+extern char ether_buffer[];
 
-    #define handle_return(x) {if(x==HTML_OK) server_send_html(ether_buffer); else server_send_result(x); return;}
+#define handle_return(x) {if(x==HTML_OK) server_send_html(ether_buffer); else server_send_result(x); return;}
 
 extern char tmp_buffer[];
 extern OpenSprinkler os;
@@ -565,9 +565,10 @@ void server_change_stations() {
 		    byte activeState = tmp_buffer[3] - '0';
 
 		    byte gpioList[] = PIN_FREE_LIST;
-		    bool found = false;
+		    
+        bool found = false;
 		    for (int i = 0; i < sizeof(gpioList) && found == false; i++) {
-			    if (gpioList[i] == gpio) found = true;
+			  //  if (gpioList[i] == gpio) found = true;
 		    }
 		    if (!found || activeState > 1) handle_return(HTML_DATA_OUTOFBOUND);
 	    } else if (tmp_buffer[0] == STN_TYPE_HTTP) {
@@ -1755,7 +1756,7 @@ ulong getNtpTime()
   ulong gt = 0;
   byte tick=0;
   do {
-    gt = time_t(nullptr);
+    gt = time(nullptr);
     tick++;
     delay(1000);
   } while(gt<978307200L && tick<20);
@@ -1766,6 +1767,4 @@ ulong getNtpTime()
     DEBUG_PRINTLN(F("NTP done."));
   }  
   return gt;
-  
-  return 0;
 }

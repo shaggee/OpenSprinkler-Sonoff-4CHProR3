@@ -108,7 +108,7 @@ typedef unsigned long ulong;
   #define NVM_FILENAME        "nvm.dat" // for RPI/BBB, nvm data is stored in a file
 
   #define MAX_EXT_BOARDS    0  // maximum number of 8-station exp. boards (a 16-station expander counts as 2)
-  #define MAX_NUM_STATIONS  ((1+MAX_EXT_BOARDS)*4)  // maximum number of stations
+  #define MAX_NUM_STATIONS  ((1+MAX_EXT_BOARDS)*8)  // maximum number of stations
 
   #define NVM_SIZE            8192
   #define STATION_NAME_SIZE   24    // maximum number of characters in each station name
@@ -222,7 +222,7 @@ typedef enum {
     #define OS_HW_VERSION    (OS_HW_VERSION_BASE+30)
 
     #define PIN_CURR_SENSE    A0
-    #define PIN_FREE_LIST     {} // no free GPIO pin at the moment
+    #define PIN_FREE_LIST     {} // free GPIO pin for relays
     #define ETHER_BUFFER_SIZE   4096
 
     extern byte PIN_BUTTON_1;

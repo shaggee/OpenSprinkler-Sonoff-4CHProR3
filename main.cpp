@@ -22,17 +22,13 @@
  */
 
 #include <limits.h>
-
 #include "OpenSprinkler.h"
 #include "program.h"
 #include "weather.h"
 #include "server.h"
-
-//#include "Wire.h"
-
 #include <FS.h>
-//#include "gpio.h"
 #include "espconnect.h"
+
 char ether_buffer[ETHER_BUFFER_SIZE];
 unsigned long getNtpTime();
 void reset_all_stations();
@@ -135,10 +131,14 @@ void ui_state_machine() {
     static ulong led_toggle_timeout = 0;
   if(led_blink_ms) {
     if(millis()>led_toggle_timeout) {
-      os.led_blink();
+      os.led_toggle();
       led_toggle_timeout = millis() + led_blink_ms;
     }
   }
+  else {
+    os.led_on();
+  }
+  
   if (!os.button_timeout) {
     ui_state = UI_STATE_DEFAULT;  // also recover to default state
   }
@@ -340,10 +340,10 @@ void do_loop() {
       os.config_ip();
       os.state = OS_STATE_CONNECTING;
       connecting_timeout = millis() + 120000L;
-      Serial.println("");
-      Serial.print(F("Connecting to..."));      
-      Serial.print(os.wifi_config.ssid);
-Serial.println("");    }
+      DEBUG_PRINTLN("");
+      DEBUG_PRINT(F("Connecting to..."));      
+      DEBUG_PRINT(os.wifi_config.ssid);
+    }
     break;
     
   case OS_STATE_TRY_CONNECT:
@@ -356,14 +356,14 @@ Serial.println("");    }
   case OS_STATE_CONNECTING:
     if(WiFi.status() == WL_CONNECTED) {
       led_blink_ms = 0;
- 
       start_server_client();
       os.state = OS_STATE_CONNECTED;
+      DEBUG_PRINT(F("...connected."));
       connecting_timeout = 0;
     } else {
       if(millis()>connecting_timeout) {
         os.state = OS_STATE_INITIAL;
-        DEBUG_PRINTLN(F("timeout"));
+        DEBUG_PRINT(F("...timeout!!!"));
       }
     }
     break;
@@ -1261,7 +1261,6 @@ void perform_ntp_sync() {
     ulong t = getNtpTime();
     if (t>0) {
       setTime(t);
-      //RTC.set(t);
     }
   }
 }

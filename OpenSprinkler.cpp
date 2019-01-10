@@ -23,9 +23,6 @@
 
 #include "OpenSprinkler.h"
 #include "server.h"
-//#include "gpio.h"
-//#include "images.h"
-//#include "testmode.h"
 #include "defines.h"
 
 /** Declare static data members */
@@ -37,7 +34,6 @@ byte OpenSprinkler::hw_type;
 byte OpenSprinkler::nboards;
 byte OpenSprinkler::nstations;
 byte OpenSprinkler::station_bits[MAX_EXT_BOARDS+1];
-byte OpenSprinkler::engage_booster;
 uint16_t OpenSprinkler::baseline_current;
 
 ulong OpenSprinkler::sensor_lasttime;
@@ -61,11 +57,6 @@ const char wifi_filename[]   PROGMEM = WIFI_FILENAME;
 byte OpenSprinkler::state = OS_STATE_INITIAL;
 byte OpenSprinkler::prev_station_bits[MAX_EXT_BOARDS+1];
 WiFiConfig OpenSprinkler::wifi_config = {WIFI_MODE_AP, "", ""};
-
-//IOEXP* OpenSprinkler::expanders[(MAX_EXT_BOARDS+1)/2];
-//IOEXP* OpenSprinkler::mainio;
-//IOEXP* OpenSprinkler::drio;
-//RCSwitch OpenSprinkler::rfswitch;
 
 extern ESP8266WebServer *wifi_server;
 extern char ether_buffer[];
@@ -355,10 +346,6 @@ void OpenSprinkler::begin() {
 
   hw_type = HW_TYPE_UNKNOWN;
 
-  //hw_type = HW_TYPE_AC;
-  //hw_type = HW_TYPE_DC;
-  //hw_type = HW_TYPE_LATCH;
-
 	// Reset all stations
   clear_all_station_bits();
   apply_all_station_bits();
@@ -367,12 +354,6 @@ void OpenSprinkler::begin() {
     PIN_BUTTON_1 = V1_PIN_BUTTON_1;
     PIN_BUTTON_2 = V1_PIN_BUTTON_2;
     PIN_BUTTON_3 = V1_PIN_BUTTON_3;
-    PIN_RFRX = V1_PIN_RFRX;
-    PIN_RFTX = V1_PIN_RFTX;
-    PIN_IOEXP_INT = V1_PIN_IOEXP_INT;
-    PIN_BOOST = V1_PIN_BOOST;
-    PIN_BOOST_EN = V1_PIN_BOOST_EN;
-    PIN_LATCH_COM = V1_PIN_LATCH_COM;
     PIN_SENSOR1 = V1_PIN_SENSOR1;
     PIN_SENSOR2 = V1_PIN_SENSOR2;
     PIN_RAINSENSOR = V1_PIN_RAINSENSOR;
@@ -382,10 +363,7 @@ void OpenSprinkler::begin() {
 
   //pinMode(PIN_SENSOR1, INPUT_PULLUP);
   //pinMode(PIN_SENSOR2, INPUT_PULLUP);
-  //pinMode(PIN_BUTTON_1, INPUT_PULLUP);
-  //pinMode(PIN_BUTTON_2, INPUT_PULLUP);
-  //pinMode(PIN_BUTTON_3, INPUT_PULLUP);
-  //pinMode(PIN_BUTTON_4, INPUT_PULLUP);
+
   pinMode(PIN_RELAY_1, OUTPUT);
   pinMode(PIN_RELAY_2, OUTPUT);
   pinMode(PIN_RELAY_3, OUTPUT);
@@ -407,12 +385,9 @@ void OpenSprinkler::begin() {
   nvdata.sunset_time = 1080;  // 6:00pm default sunset
 
   nboards = 0;
-  nstations = 4;
+  nstations = 8;
 
-  // set rf data pin
-  //pinMode(PIN_RFTX, OUTPUT);
-  //digitalWrite(PIN_RFTX, LOW);
-    
+  
     status.has_curr_sense = 0;  // OS3.0 has current sensing capacility
     // measure baseline current
     baseline_current = 100;
@@ -431,104 +406,11 @@ void OpenSprinkler::begin() {
   pinMode(PIN_BUTTON_2, INPUT_PULLUP);
   pinMode(PIN_BUTTON_3, INPUT_PULLUP);
 }
-/** LATCH boost voltage
- *
- */
-void OpenSprinkler::latch_boost() {
-  digitalWrite(PIN_BOOST, HIGH);    // enable boost converter
-  delay((int)options[OPTION_BOOST_TIME]<<2);  // wait for booster to charge
-  digitalWrite(PIN_BOOST, LOW);     // disable boost converter
-}
-
-/** Set all zones (for LATCH controller)
- *  This function sets all zone pins (including COM) to a specified value
- */
-void OpenSprinkler::latch_setallzonepins(byte value) {
-  digitalWrite(PIN_RELAY_1, value); // Sonoff 4CH Red Led and Relay 1 (0 = Off, 1 = On)
-  digitalWrite(PIN_RELAY_2, value); // Sonoff 4CH Red Led and Relay 2 (0 = Off, 1 = On)
-  digitalWrite(PIN_RELAY_3, value); // Sonoff 4CH Red Led and Relay 3 (0 = Off, 1 = On)
-  digitalWrite(PIN_RELAY_4, value); // Sonoff 4CH Red Led and Relay 4 (0 = Off, 1 = On)
-}
-/** Set one zone (for LATCH controller)
- *  This function sets one specified zone pin to a specified value
- */
-void OpenSprinkler::latch_setzonepin(byte sid, byte value) {
-   digitalWrite(sid, value);
-}
-
-/** LATCH open / close a station
- *
- */
-void OpenSprinkler::latch_open(byte sid) {
-  latch_boost();  // boost voltage
-  latch_setallzonepins(HIGH);       // set all switches to HIGH, including COM
-  latch_setzonepin(sid, LOW); // set the specified switch to LOW
-  delay(1); // delay 1 ms for all gates to stablize
-  digitalWrite(PIN_BOOST_EN, HIGH); // dump boosted voltage
-  delay(100);                     // for 100ms
-  latch_setzonepin(sid, HIGH);        // set the specified switch back to HIGH
-  digitalWrite(PIN_BOOST_EN, LOW);  // disable boosted voltage
-}
-
-void OpenSprinkler::latch_close(byte sid) {
-  latch_boost();  // boost voltage
-  latch_setallzonepins(LOW);        // set all switches to LOW, including COM
-  latch_setzonepin(sid, HIGH);// set the specified switch to HIGH
-  delay(1); // delay 1 ms for all gates to stablize
-  digitalWrite(PIN_BOOST_EN, HIGH); // dump boosted voltage
-  delay(100);                     // for 100ms
-  latch_setzonepin(sid, LOW);     // set the specified switch back to LOW
-  digitalWrite(PIN_BOOST_EN, LOW);  // disable boosted voltage
-  latch_setallzonepins(HIGH);               // set all switches back to HIGH
-}
-
-/**
- * LATCH version of apply_all_station_bits
- */
-void OpenSprinkler::latch_apply_all_station_bits() {
-  if(hw_type==HW_TYPE_LATCH && engage_booster) {
-    for(byte i=0;i<nstations;i++) {
-      byte bid=i>>3;
-      byte s=i&0x07;
-      byte mask=(byte)1<<s;
-      if(station_bits[bid] & mask) {
-        if(prev_station_bits[bid] & mask) continue; // already set
-        latch_open(i);
-      } else {
-        if(!(prev_station_bits[bid] & mask)) continue; // already reset
-        latch_close(i);
-      }
-    }
-    engage_booster = 0;
-    memcpy(prev_station_bits, station_bits, MAX_EXT_BOARDS+1);
-  }
-}
 
 /** Apply all station bits
  * !!! This will activate/deactivate valves !!!
  */
 void OpenSprinkler::apply_all_station_bits() {
-
-  if(hw_type==HW_TYPE_LATCH) {
-    // if controller type is latching, the control mechanism is different
-    // hence will be handled separately
-    latch_apply_all_station_bits(); 
-  } else {
-    // Handle DC booster
-    if(hw_type==HW_TYPE_DC && engage_booster) {
-      // for DC controller: boost voltage and enable output path
-      digitalWrite(PIN_BOOST_EN, LOW);  // disable output path
-      digitalWrite(PIN_BOOST, HIGH);    // enable boost converter
-      delay((int)options[OPTION_BOOST_TIME]<<2);  // wait for booster to charge
-      digitalWrite(PIN_BOOST, LOW);     // disable boost converter
-      digitalWrite(PIN_BOOST_EN, HIGH); // enable output path
-      engage_booster = 0;
-    }
-   digitalWrite(PIN_RELAY_1, LOW); // Sonoff 4CH Red Led and Relay 1 (0 = Off, 1 = On)
-   digitalWrite(PIN_RELAY_1, LOW); // Sonoff 4CH Red Led and Relay 2 (0 = Off, 1 = On)
-   digitalWrite(PIN_RELAY_1, LOW); // Sonoff 4CH Red Led and Relay 3 (0 = Off, 1 = On)
-   digitalWrite(PIN_RELAY_1, LOW); // Sonoff 4CH Red Led and Relay 4 (0 = Off, 1 = On)   
-  }
     
   byte bid, s, sbits;  
 
@@ -695,18 +577,42 @@ byte OpenSprinkler::set_station_bit(byte sid, byte value) {
     if((*data)&mask) return 0;  // if bit is already set, return no change
     else {
       (*data) = (*data) | mask;
-      engage_booster = true; // if bit is changing from 0 to 1, set engage_booster
       switch_special_station(sid, 1); // handle special stations
+      switch (sid) {
+        case 0:
+          digitalWrite(PIN_RELAY_1, HIGH);
+          break;
+        case 1:
+          digitalWrite(PIN_RELAY_2, HIGH);
+          break;
+        case 2:
+          digitalWrite(PIN_RELAY_3, HIGH);
+          break;
+        case 3:
+          digitalWrite(PIN_RELAY_4, HIGH);
+          break;
+      }
       return 1;
     }
   } else {
     if(!((*data)&mask)) return 0; // if bit is already reset, return no change
     else {
       (*data) = (*data) & (~mask);
-      if(hw_type == HW_TYPE_LATCH) {
-        engage_booster = true;  // if LATCH controller, engage booster when bit changes
-      }
       switch_special_station(sid, 0); // handle special stations
+      switch (sid) {
+        case 0:
+          digitalWrite(PIN_RELAY_1, LOW);
+          break;
+        case 1:
+          digitalWrite(PIN_RELAY_2, LOW);
+          break;
+        case 2:
+          digitalWrite(PIN_RELAY_3, LOW);
+          break;
+        case 3:
+          digitalWrite(PIN_RELAY_4, LOW);
+          break;
+      }
       return 255;
     }
   }
@@ -1346,6 +1252,10 @@ void OpenSprinkler::config_ip() {
   }
 }
 
-void OpenSprinkler::led_blink() {
+void OpenSprinkler::led_toggle() {
 		digitalWrite(PIN_LED,!digitalRead(PIN_LED));
+}
+
+void OpenSprinkler::led_on() {
+		digitalWrite(PIN_LED, 0);
 }

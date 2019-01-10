@@ -65,6 +65,7 @@ void start_network_sta_with_ap(const char *ssid, const char *pass) {
 
 void start_network_sta(const char *ssid, const char *pass) {
   if(!ssid || !pass) return;
+  WiFi.disconnect();
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
 }

@@ -25,16 +25,10 @@
 #ifndef _OPENSPRINKLER_H
 #define _OPENSPRINKLER_H
 
-//#include <Wire.h>
 #include <FS.h>
-//#include <RCSwitch.h>
-//#include "SSD1306Display.h"
-//#include "i2crtc.h"
 #include "espconnect.h"
-
 #include "defines.h"
 #include "utils.h"
-//#include "gpio.h"
   
 /** Non-volatile data */
 struct NVConData {
@@ -191,7 +185,8 @@ public:
   static void lcd_print_version(byte v);                   // print version number
 
   // -- UI and buttons
-  static void led_blink();
+  static void led_toggle();
+  static void led_on();
   static byte button_read(byte waitmode); // Read button value. options for 'waitmodes' are:
                                           // BUTTON_WAIT_NONE, BUTTON_WAIT_RELEASE, BUTTON_WAIT_HOLD
                                           // return values are 'OR'ed with flags
@@ -201,7 +196,6 @@ public:
   static void ui_set_options(int oid);    // ui for setting options (oid-> starting option index)
   
   static WiFiConfig wifi_config;
-  //static RCSwitch rfswitch;
   static byte get_wifi_mode() {return wifi_config.mode;}
   static void config_ip();
   static void reset_to_ap();
@@ -210,13 +204,6 @@ private:
   static void lcd_print_option(int i);  // print an option to the lcd
   static void lcd_print_2digit(int v);  // print a integer in 2 digits
   static byte button_read_busy(byte pin_butt, byte waitmode, byte butt, byte is_holding);
-  static byte engage_booster;
-  static void latch_boost();
-  static void latch_open(byte sid);
-  static void latch_close(byte sid);
-  static void latch_setzonepin(byte sid, byte value);
-  static void latch_setallzonepins(byte value);
-  static void latch_apply_all_station_bits();
   static byte prev_station_bits[];
 // LCD functions
 };
