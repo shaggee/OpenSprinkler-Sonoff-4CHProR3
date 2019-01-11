@@ -694,7 +694,6 @@ void do_loop() {
     // process LCD display
     if (!ui_state) {
       if(os.get_wifi_mode()==WIFI_MODE_STA && WiFi.status()==WL_CONNECTED && WiFi.localIP()) {
-        Serial.println("process LCD display...");
       }
     }
     
