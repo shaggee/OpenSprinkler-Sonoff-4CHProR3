@@ -2,7 +2,25 @@
 
 This is the unified OpenSprinkler firmware adapted to runs on Sonoff 4ch, without and display and expansion boards.
 
+![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch.jpg)
+
 # Building the firmware
+
+## Hacking the Sonoff 4ch
+
+For this setup, if you want to use a regular Sonoff 4Ch (Rev1/Rev2)is needed to split the load in (AC) and Relays, because the most irrigation valves are AC 24v poweded.  If you want to use a Sonoff 4ch Pro, skip this step.
+
+  - Disconect any power or connection
+  - Open the Sonoff putting off the 4 screws on the back
+  - Using a soldering iron, remove contacts (solder) between the resistor and the first relay.  In the next images the zones are yellow colored.
+  
+![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch-front.jpg)
+![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch-front-zoom.jpg)
+
+![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch-back.jpg)
+![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch-back-zoom.jpg)
+
+  - Check with a multitester the non continuity between both points.
 
 ## Prep Sonoff 4CH
 
