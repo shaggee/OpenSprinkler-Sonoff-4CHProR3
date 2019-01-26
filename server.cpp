@@ -950,7 +950,7 @@ void server_json_controller_main() {
               pd.lastrun.duration,
               pd.lastrun.endtime);
 
-  if(os.options[OPTION_SENSOR1_TYPE]==SENSOR_TYPE_FLOW) {
+  if(os.options[OPTION_SENSOR2_TYPE]==SENSOR_TYPE_FLOW) {
     bfill.emit_p(PSTR("\"flcrt\":$L,\"flwrt\":$D,"), os.flowcount_rt, FLOWCOUNT_RT_WINDOW);
   }
 

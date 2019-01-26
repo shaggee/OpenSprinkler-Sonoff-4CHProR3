@@ -8,6 +8,7 @@ byte PIN_RELAY_1 = 12;
 byte PIN_RELAY_2 = 5;
 byte PIN_RELAY_3 = 4;
 byte PIN_RELAY_4 = 15;
+byte PIN_RELAY_5 = 3;
 byte PIN_LED = 13;
 byte PIN_RFRX = 255;
 byte PIN_RFTX = 255;
@@ -16,8 +17,8 @@ byte PIN_BOOST_EN = 255;
 byte PIN_LATCH_COM = 255;
 byte PIN_SENSOR1 = 255;
 byte PIN_SENSOR2 = 255;
-byte PIN_RAINSENSOR = 255;
-byte PIN_FLOWSENSOR = 255;
+byte PIN_RAINSENSOR = 1;
+byte PIN_FLOWSENSOR = 2;
 
 /*
  GPIO_KEY1,        // GPIO00 Button 1

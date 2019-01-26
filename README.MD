@@ -1,6 +1,8 @@
-# **OpenSprinkler ESP Firmware**
+# **OpenSprinkler for Sonoff 4CH Firmware**
 
-This is the unified OpenSprinkler firmware adapted to runs on Sonoff 4ch, without and display and expansion boards.
+This is the unified OpenSprinkler firmware adapted to runs on Sonoff 4ch, without a display and expansion boards.
+
+TODO: Prepare a PR with all modification to be added to the original OpenSklinkler-Firmware repo.
 
 ![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch.jpg)
 
@@ -20,9 +22,26 @@ For this setup, if you want to use a regular Sonoff 4Ch (Rev1/Rev2)is needed to 
 ![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch-back.jpg)
 ![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch-back-zoom.jpg)
 
-  - Check with a multitester the non continuity between both points.
+  - Check with a multimeter the non continuity between both points.
 
-## Prep Sonoff 4CH
+## Mappings
+
+Internals:
+  - Blue LED or WiFi LED show WiFi connectivity status: ON=WiFi Connected / SlowBlink=Connecting / FastBlink=Initializing
+  - Stations 1 to 4 are mapped to Relays 1 to 4.
+  - Statios 5 to 8 are soft stations, you can use with a HTTP, like another sonoff basic or pow with Sonoff-Tasmota firmware for example.
+
+Externals:
+
+![alt text](https://raw.githubusercontent.com/bibarrav/OpenSprinkler-Sonoff4ch/master/sonoff4ch-GPIO-Available.png)
+
+  - 102      --> Flow Sensor    --> GPIO02
+  - VCC3.3  --> Positive 3.3v
+  - RX     --> External Relay --> GPIO03 Serial TXD
+  - TX      --> Rain Sensor    --> GPIO01 Serial RXD
+  - GND     --> Negative
+
+## Preparing Sonoff to upload
 
   - Disconect power from Sonoff
   - Hold button 1 and connect serial adaptor

@@ -260,8 +260,8 @@ byte OpenSprinkler::options[] = {
   0,  // index of master station. 0: no master station
   120,// master on time adjusted time (-10 minutes to 10 minutes)
   120,// master off adjusted time (-10 minutes to 10 minutes)
-  0,  // sensor 1 type (see SENSOR_TYPE macro defines)
-  0,  // sensor 1 option. 0: normally closed; 1: normally open.
+  1,  // sensor 1 type (see SENSOR_TYPE macro defines)
+  1,  // sensor 1 option. 0: normally closed; 1: normally open.
   100,// water level (default 100%),
   1,  // device enable
   0,  // 1: ignore password; 0: use password
@@ -289,7 +289,7 @@ byte OpenSprinkler::options[] = {
   8,
   0,  // special station auto refresh
   0,  // ifttt enable bits
-  0,  // sensor 2 type
+  2,  // sensor 2 type
   0,  // sensor 2 option. 0: normally closed; 1: normally open.
   0   // reset
 };
@@ -350,27 +350,16 @@ void OpenSprinkler::begin() {
   clear_all_station_bits();
   apply_all_station_bits();
 
-    /* assing
-    PIN_BUTTON_1 = V1_PIN_BUTTON_1;
-    PIN_BUTTON_2 = V1_PIN_BUTTON_2;
-    PIN_BUTTON_3 = V1_PIN_BUTTON_3;
-    PIN_SENSOR1 = V1_PIN_SENSOR1;
-    PIN_SENSOR2 = V1_PIN_SENSOR2;
-    PIN_RAINSENSOR = V1_PIN_RAINSENSOR;
-    PIN_FLOWSENSOR = V1_PIN_FLOWSENSOR;  */
-
-
-
-  //pinMode(PIN_SENSOR1, INPUT_PULLUP);
-  //pinMode(PIN_SENSOR2, INPUT_PULLUP);
-
   pinMode(PIN_RELAY_1, OUTPUT);
   pinMode(PIN_RELAY_2, OUTPUT);
   pinMode(PIN_RELAY_3, OUTPUT);
   pinMode(PIN_RELAY_4, OUTPUT);
+  pinMode(PIN_RELAY_5, OUTPUT);
   pinMode(PIN_LED, OUTPUT);
   // Set up sensors
   /* todo: handle two sensors */
+  pinMode(PIN_RAINSENSOR, INPUT_PULLUP);
+  pinMode(PIN_FLOWSENSOR, INPUT_PULLUP);
   attachInterrupt(PIN_FLOWSENSOR, flow_isr, FALLING);
 
   // Default controller status variables
@@ -591,6 +580,9 @@ byte OpenSprinkler::set_station_bit(byte sid, byte value) {
         case 3:
           digitalWrite(PIN_RELAY_4, HIGH);
           break;
+        case 4:
+          digitalWrite(PIN_RELAY_5, LOW);
+          break;
       }
       return 1;
     }
@@ -611,6 +603,9 @@ byte OpenSprinkler::set_station_bit(byte sid, byte value) {
           break;
         case 3:
           digitalWrite(PIN_RELAY_4, LOW);
+          break;
+        case 4:
+          digitalWrite(PIN_RELAY_5, HIGH);
           break;
       }
       return 255;

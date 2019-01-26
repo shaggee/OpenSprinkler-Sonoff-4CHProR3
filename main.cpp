@@ -70,7 +70,7 @@ byte prev_flow_state = HIGH;
 
 void flow_poll() {
   byte curr_flow_state = digitalRead(PIN_FLOWSENSOR);
-  if(os.options[OPTION_SENSOR1_TYPE]!=SENSOR_TYPE_FLOW) return;
+  if(os.options[OPTION_SENSOR2_TYPE]!=SENSOR_TYPE_FLOW) return;
 
   if(!(prev_flow_state==HIGH && curr_flow_state==LOW)) {
     prev_flow_state = curr_flow_state;
@@ -625,7 +625,7 @@ void do_loop() {
         // reset program busy bit
         os.status.program_busy = 0;
         // log flow sensor reading if flow sensor is used
-        if(os.options[OPTION_SENSOR1_TYPE]==SENSOR_TYPE_FLOW) {
+        if(os.options[OPTION_SENSOR2_TYPE]==SENSOR_TYPE_FLOW) {
           write_log(LOGDATA_FLOWSENSE, curr_time);
           push_message(IFTTT_FLOWSENSOR, (flow_count>os.flowcount_log_start)?(flow_count-os.flowcount_log_start):0);
         }
@@ -718,7 +718,7 @@ void do_loop() {
 
     // real-time flow count
     static ulong flowcount_rt_start = 0;
-    if (os.options[OPTION_SENSOR1_TYPE]==SENSOR_TYPE_FLOW) {
+    if (os.options[OPTION_SENSOR2_TYPE]==SENSOR_TYPE_FLOW) {
       if (curr_time % FLOWCOUNT_RT_WINDOW == 0) {
         os.flowcount_rt = (flow_count > flowcount_rt_start) ? flow_count - flowcount_rt_start: 0;
         flowcount_rt_start = flow_count;
@@ -908,7 +908,7 @@ void schedule_all_stations(ulong curr_time) {
     if (!os.status.program_busy) {
       os.status.program_busy = 1;  // set program busy bit
       // start flow count
-      if(os.options[OPTION_SENSOR1_TYPE] == SENSOR_TYPE_FLOW) {  // if flow sensor is connected
+      if(os.options[OPTION_SENSOR2_TYPE] == SENSOR_TYPE_FLOW) {  // if flow sensor is connected
         os.flowcount_log_start = flow_count;
         os.sensor_lasttime = curr_time;
       }
@@ -1021,7 +1021,7 @@ void push_message(byte type, uint32_t lval, float fval, const char* sval) {
       strcat_P(postval, PSTR(" minutes "));
       itoa((int)fval%60, postval+strlen(postval), 10);
       strcat_P(postval, PSTR(" seconds."));
-      if(os.options[OPTION_SENSOR1_TYPE]==SENSOR_TYPE_FLOW) {
+      if(os.options[OPTION_SENSOR2_TYPE]==SENSOR_TYPE_FLOW) {
         strcat_P(postval, PSTR(" Flow rate: "));
         dtostrf(flow_last_gpm,5,2,postval+strlen(postval));
       }
@@ -1201,7 +1201,7 @@ void write_log(byte type, ulong curr_time) {
   }
   strcat_P(tmp_buffer, PSTR(","));
   ultoa(curr_time, tmp_buffer+strlen(tmp_buffer), 10);
-  if((os.options[OPTION_SENSOR1_TYPE]==SENSOR_TYPE_FLOW) && (type==LOGDATA_STATION)) {
+  if((os.options[OPTION_SENSOR2_TYPE]==SENSOR_TYPE_FLOW) && (type==LOGDATA_STATION)) {
     // RAH implementation of flow sensor
     strcat_P(tmp_buffer, PSTR(","));
     dtostrf(flow_last_gpm,5,2,tmp_buffer+strlen(tmp_buffer));

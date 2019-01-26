@@ -233,6 +233,7 @@ typedef enum {
     extern byte PIN_RELAY_2;
     extern byte PIN_RELAY_3;
     extern byte PIN_RELAY_4;
+    extern byte PIN_RELAY_5;
     extern byte PIN_LED;
     extern byte PIN_RFRX;
     extern byte PIN_RFTX;
