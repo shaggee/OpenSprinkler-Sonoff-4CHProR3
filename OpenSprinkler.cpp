@@ -355,6 +355,7 @@ void OpenSprinkler::begin() {
   pinMode(PIN_RELAY_3, OUTPUT);
   pinMode(PIN_RELAY_4, OUTPUT);
   pinMode(PIN_RELAY_5, OUTPUT);
+  digitalWrite(PIN_RELAY_5, HIGH); // Turn Off External Relay
   pinMode(PIN_LED, OUTPUT);
   // Set up sensors
   /* todo: handle two sensors */
