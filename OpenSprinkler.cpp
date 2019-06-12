@@ -355,6 +355,10 @@ void OpenSprinkler::begin() {
   pinMode(PIN_RELAY_3, OUTPUT);
   pinMode(PIN_RELAY_4, OUTPUT);
   pinMode(PIN_RELAY_5, OUTPUT);
+  digitalWrite(PIN_RELAY_1, HIGH);
+  digitalWrite(PIN_RELAY_2, HIGH);
+  digitalWrite(PIN_RELAY_3, HIGH);
+  digitalWrite(PIN_RELAY_4, HIGH);
   digitalWrite(PIN_RELAY_5, HIGH); // Turn Off External Relay
   pinMode(PIN_LED, OUTPUT);
   // Set up sensors
@@ -570,16 +574,16 @@ byte OpenSprinkler::set_station_bit(byte sid, byte value) {
       switch_special_station(sid, 1); // handle special stations
       switch (sid) {
         case 0:
-          digitalWrite(PIN_RELAY_1, HIGH);
+          digitalWrite(PIN_RELAY_1, LOW);
           break;
         case 1:
-          digitalWrite(PIN_RELAY_2, HIGH);
+          digitalWrite(PIN_RELAY_2, LOW);
           break;
         case 2:
-          digitalWrite(PIN_RELAY_3, HIGH);
+          digitalWrite(PIN_RELAY_3, LOW);
           break;
         case 3:
-          digitalWrite(PIN_RELAY_4, HIGH);
+          digitalWrite(PIN_RELAY_4, LOW);
           break;
         case 4:
           digitalWrite(PIN_RELAY_5, LOW);
@@ -594,16 +598,16 @@ byte OpenSprinkler::set_station_bit(byte sid, byte value) {
       switch_special_station(sid, 0); // handle special stations
       switch (sid) {
         case 0:
-          digitalWrite(PIN_RELAY_1, LOW);
+          digitalWrite(PIN_RELAY_1, HIGH);
           break;
         case 1:
-          digitalWrite(PIN_RELAY_2, LOW);
+          digitalWrite(PIN_RELAY_2, HIGH);
           break;
         case 2:
-          digitalWrite(PIN_RELAY_3, LOW);
+          digitalWrite(PIN_RELAY_3, HIGH);
           break;
         case 3:
-          digitalWrite(PIN_RELAY_4, LOW);
+          digitalWrite(PIN_RELAY_4, HIGH);
           break;
         case 4:
           digitalWrite(PIN_RELAY_5, HIGH);
@@ -856,13 +860,14 @@ void OpenSprinkler::options_setup() {
     // load non-volatile controller data
     nvdata_load();
   }
-
-	byte button = button_read(BUTTON_WAIT_NONE);
-
+  lcd_print_line_clear_pgm(PSTR("Buttons_init-Start..."), 0);
+	byte button;// = button_read(BUTTON_WAIT_NONE);
+  lcd_print_line_clear_pgm(PSTR("Buttons_init-Read..."), 0);
 	switch(button & BUTTON_MASK) {
 
     case BUTTON_1:
       // if BUTTON_1 is pressed during startup, go to 'reset all options'
+      lcd_print_line_clear_pgm(PSTR("Buttons_init-Read_Button1..."), 0);
       ui_set_options(OPTION_RESET);
       if (options[OPTION_RESET]) {
         reboot_dev();
@@ -872,6 +877,7 @@ void OpenSprinkler::options_setup() {
     case BUTTON_2:
       // if BUTTON_2 is pressed during startup, go to Test OS mode
       // only available for OS 3.0
+      lcd_print_line_clear_pgm(PSTR("Buttons_init-Read_Button2..."), 0);
       lcd_print_line_clear_pgm(PSTR("===Test Mode==="), 0);
       lcd_print_line_clear_pgm(PSTR("  B3:proceed"), 1);
       do {
@@ -892,6 +898,7 @@ void OpenSprinkler::options_setup() {
 
     case BUTTON_3:
       // if BUTTON_3 is pressed during startup, enter Setup option mode
+      lcd_print_line_clear_pgm(PSTR("Buttons_init-Read_Button3..."), 0);
       lcd_print_line_clear_pgm(PSTR("==Set Options=="), 0); 
       lcd_print_line_clear_pgm(PSTR("B1/B2:+/-, B3:->"), 0);  
       lcd_print_line_clear_pgm(PSTR("Hold B3 to save"), 1);
@@ -925,12 +932,15 @@ void OpenSprinkler::options_setup() {
     lcd_print_pgm(PSTR(OS_FW_MINOR));
     lcd_print_pgm(PSTR(')')); */
   }
+  lcd_print_line_clear_pgm(PSTR("Buttons_init-Finish..."), 0);
 }
 
 /** Load non-volatile controller status data from internal NVM */
 void OpenSprinkler::nvdata_load() {
+  lcd_print_line_clear_pgm(PSTR("nvdata_load-Start..."), 0);
   nvm_read_block(&nvdata, (void*)ADDR_NVM_NVCONDATA, sizeof(NVConData));
   old_status = status;
+  lcd_print_line_clear_pgm(PSTR("nvdata_load-Finish..."), 0);
 }
 
 /** Save non-volatile controller status data to internal NVM */
@@ -940,6 +950,7 @@ void OpenSprinkler::nvdata_save() {
 
 /** Load options from internal NVM */
 void OpenSprinkler::options_load() {
+  lcd_print_line_clear_pgm(PSTR("Options_load-Start..."), 0);
   nvm_read_block(tmp_buffer, (void*)ADDR_NVM_OPTIONS, NUM_OPTIONS);
   for (byte i=0; i<NUM_OPTIONS; i++) {
     options[i] = tmp_buffer[i];
@@ -960,6 +971,7 @@ void OpenSprinkler::options_load() {
     wifi_config.pass = sval;
     file.close();
   }
+  lcd_print_line_clear_pgm(PSTR("Options_load-Finish..."), 0);
 }
 
 /** Save options to internal NVM */

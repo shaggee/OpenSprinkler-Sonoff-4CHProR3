@@ -1,15 +1,15 @@
 #include "defines.h"
 
-byte PIN_BUTTON_1 = 9;
-byte PIN_BUTTON_2 = 10;
-byte PIN_BUTTON_3 = 14;
-byte PIN_BUTTON_4 = 0;
-byte PIN_RELAY_1 = 12;
-byte PIN_RELAY_2 = 5;
-byte PIN_RELAY_3 = 4;
-byte PIN_RELAY_4 = 15;
-byte PIN_RELAY_5 = 3;
-byte PIN_LED = 13;
+byte PIN_BUTTON_1 = 255;
+byte PIN_BUTTON_2 = 255;
+byte PIN_BUTTON_3 = 255;
+byte PIN_BUTTON_4 = 255;
+byte PIN_RELAY_1 = 5; //D1
+byte PIN_RELAY_2 = 4; //D2
+byte PIN_RELAY_3 = 0; //D3
+byte PIN_RELAY_4 = 14; //D5
+byte PIN_RELAY_5 = 12; //D6
+byte PIN_LED = 2; //D4
 byte PIN_RFRX = 255;
 byte PIN_RFTX = 255;
 byte PIN_BOOST = 255;
@@ -17,8 +17,8 @@ byte PIN_BOOST_EN = 255;
 byte PIN_LATCH_COM = 255;
 byte PIN_SENSOR1 = 255;
 byte PIN_SENSOR2 = 255;
-byte PIN_RAINSENSOR = 1;
-byte PIN_FLOWSENSOR = 2;
+byte PIN_RAINSENSOR = 255;
+byte PIN_FLOWSENSOR = 16; //D0
 
 /*
  GPIO_KEY1,        // GPIO00 Button 1

@@ -144,7 +144,7 @@ void ui_state_machine() {
   }
 
   // read button, if something is pressed, wait till release
-  byte button = os.button_read(BUTTON_WAIT_HOLD);
+  byte button; //= os.button_read(BUTTON_WAIT_HOLD);
 
   if (button & BUTTON_FLAG_DOWN) {   // repond only to button down events
     os.button_timeout = LCD_BACKLIGHT_TIMEOUT;
