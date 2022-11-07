@@ -355,10 +355,10 @@ void OpenSprinkler::begin() {
   pinMode(PIN_RELAY_3, OUTPUT);
   pinMode(PIN_RELAY_4, OUTPUT);
   pinMode(PIN_RELAY_5, OUTPUT);
-  digitalWrite(PIN_RELAY_1, HIGH);
-  digitalWrite(PIN_RELAY_2, HIGH);
-  digitalWrite(PIN_RELAY_3, HIGH);
-  digitalWrite(PIN_RELAY_4, HIGH);
+  digitalWrite(PIN_RELAY_1, LOW);
+  digitalWrite(PIN_RELAY_2, LOW);
+  digitalWrite(PIN_RELAY_3, LOW);
+  digitalWrite(PIN_RELAY_4, LOW);
   digitalWrite(PIN_RELAY_5, HIGH); // Turn Off External Relay
   pinMode(PIN_LED, OUTPUT);
   // Set up sensors
@@ -574,30 +574,6 @@ byte OpenSprinkler::set_station_bit(byte sid, byte value) {
       switch_special_station(sid, 1); // handle special stations
       switch (sid) {
         case 0:
-          digitalWrite(PIN_RELAY_1, LOW);
-          break;
-        case 1:
-          digitalWrite(PIN_RELAY_2, LOW);
-          break;
-        case 2:
-          digitalWrite(PIN_RELAY_3, LOW);
-          break;
-        case 3:
-          digitalWrite(PIN_RELAY_4, LOW);
-          break;
-        case 4:
-          digitalWrite(PIN_RELAY_5, LOW);
-          break;
-      }
-      return 1;
-    }
-  } else {
-    if(!((*data)&mask)) return 0; // if bit is already reset, return no change
-    else {
-      (*data) = (*data) & (~mask);
-      switch_special_station(sid, 0); // handle special stations
-      switch (sid) {
-        case 0:
           digitalWrite(PIN_RELAY_1, HIGH);
           break;
         case 1:
@@ -611,6 +587,30 @@ byte OpenSprinkler::set_station_bit(byte sid, byte value) {
           break;
         case 4:
           digitalWrite(PIN_RELAY_5, HIGH);
+          break;
+      }
+      return 1;
+    }
+  } else {
+    if(!((*data)&mask)) return 0; // if bit is already reset, return no change
+    else {
+      (*data) = (*data) & (~mask);
+      switch_special_station(sid, 0); // handle special stations
+      switch (sid) {
+        case 0:
+          digitalWrite(PIN_RELAY_1, LOW);
+          break;
+        case 1:
+          digitalWrite(PIN_RELAY_2, LOW);
+          break;
+        case 2:
+          digitalWrite(PIN_RELAY_3, LOW);
+          break;
+        case 3:
+          digitalWrite(PIN_RELAY_4, LOW);
+          break;
+        case 4:
+          digitalWrite(PIN_RELAY_5, LOW);
           break;
       }
       return 255;
@@ -791,6 +791,17 @@ void OpenSprinkler::options_setup() {
   if (curr_ver != OS_FW_VERSION || nvm_read_byte((byte*)(ADDR_NVM_OPTIONS+OPTION_RESET))==0xAA)  {
 
     lcd_print_line_clear_pgm(PSTR("Resetting..."), 0); //DEBUG
+	lcd_print_line_clear_pgm(PSTR("Turn ON all Relays..."), 0); //DEBUG SonOff 4ch Turn ON all relays for 1sec.
+	digitalWrite(PIN_RELAY_1, HIGH);
+	digitalWrite(PIN_RELAY_2, HIGH);
+	digitalWrite(PIN_RELAY_3, HIGH);
+	digitalWrite(PIN_RELAY_4, HIGH);
+	delay(1000);
+	digitalWrite(PIN_RELAY_1, LOW);
+	digitalWrite(PIN_RELAY_2, LOW);
+	digitalWrite(PIN_RELAY_3, LOW);
+	digitalWrite(PIN_RELAY_4, LOW);
+	lcd_print_line_clear_pgm(PSTR("Turn Off all Relays..."), 0); //DEBUG SonOff 4ch Turn Off all relays.
     lcd_print_line_clear_pgm(PSTR("Please Wait..."), 1); //DEBUG
 
     // ======== Reset NVM data ========
@@ -861,7 +872,7 @@ void OpenSprinkler::options_setup() {
     nvdata_load();
   }
   lcd_print_line_clear_pgm(PSTR("Buttons_init-Start..."), 0);
-	byte button;// = button_read(BUTTON_WAIT_NONE);
+  byte button = button_read(BUTTON_WAIT_NONE);
   lcd_print_line_clear_pgm(PSTR("Buttons_init-Read..."), 0);
 	switch(button & BUTTON_MASK) {
 
@@ -1161,13 +1172,19 @@ byte OpenSprinkler::button_read(byte waitmode) {
   byte is_holding = (old&BUTTON_FLAG_HOLD);
 
   delay(BUTTON_DELAY_MS);
+  lcd_print_line_clear_pgm(PSTR("Button_read-egg..."), 0);
 
   if (digitalRead(PIN_BUTTON_1) == 0) {
     curr = button_read_busy(PIN_BUTTON_1, waitmode, BUTTON_1, is_holding);
+	lcd_print_line_clear_pgm(PSTR("Button_1_Press-egg..."), 0);
+	digitalWrite(PIN_RELAY_4, HIGH);
   } else if (digitalRead(PIN_BUTTON_2) == 0) {
     curr = button_read_busy(PIN_BUTTON_2, waitmode, BUTTON_2, is_holding);
+	lcd_print_line_clear_pgm(PSTR("Button_2_Press-egg..."), 0);
   } else if (digitalRead(PIN_BUTTON_3) == 0) {
     curr = button_read_busy(PIN_BUTTON_3, waitmode, BUTTON_3, is_holding);
+	lcd_print_line_clear_pgm(PSTR("Button_3_Press-egg..."), 0);
+	digitalWrite(PIN_RELAY_3, HIGH);
   }
 
   // set flags in return value
