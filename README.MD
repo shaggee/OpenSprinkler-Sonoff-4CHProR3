@@ -14,7 +14,7 @@ Using USB to TTL covertor with installed esptool.py when connect to internal ser
 
     $ esptool.py --port /dev/ttyUSB0 flash_id
     $ esptool.py --port /dev/ttyUSB0 erase_flash
-    $ esptool.py --port /dev/ttyUSB0 write_flash -fs 1MB -fm dout 0x0 OpenSprinkler-Sonoff4ch.ino.generic.bin
+    $ esptool.py --port /dev/ttyUSB0 write_flash -fs 1MB -fm dout 0x0 OpenSprinkler-Sonoff-4chProR3.bin
 
 
 ## Resetting Instruction : 
