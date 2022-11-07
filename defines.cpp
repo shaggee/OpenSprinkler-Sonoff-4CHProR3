@@ -1,15 +1,15 @@
 #include "defines.h"
 
-byte PIN_BUTTON_1 = 255;
-byte PIN_BUTTON_2 = 255;
-byte PIN_BUTTON_3 = 255;
-byte PIN_BUTTON_4 = 255;
-byte PIN_RELAY_1 = 5; //D1
-byte PIN_RELAY_2 = 4; //D2
-byte PIN_RELAY_3 = 0; //D3
-byte PIN_RELAY_4 = 14; //D5
-byte PIN_RELAY_5 = 12; //D6
-byte PIN_LED = 2; //D4
+byte PIN_BUTTON_1 = 14; // this is GPIO from Button 4, swaped because ESP8266 goes in firmware flash mode when HOLD on power ON.
+byte PIN_BUTTON_2 = 9;
+byte PIN_BUTTON_3 = 10;
+byte PIN_BUTTON_4 = 0; // this is GPIO from Button 1
+byte PIN_RELAY_1 = 12; //D1
+byte PIN_RELAY_2 = 5; //D2
+byte PIN_RELAY_3 = 4; //D3
+byte PIN_RELAY_4 = 15; //D5
+byte PIN_RELAY_5 = 255; //D6
+byte PIN_LED = 13; //D4
 byte PIN_RFRX = 255;
 byte PIN_RFTX = 255;
 byte PIN_BOOST = 255;
@@ -38,3 +38,4 @@ byte PIN_FLOWSENSOR = 16; //D0
      GPIO_KEY4,        // GPIO14 Button 4
      GPIO_REL4,        // GPIO15 Red Led and Relay 4 (0 = Off, 1 = On)
 */
+
