@@ -1,3 +1,38 @@
+# **OpenSprinkler for Sonoff 4CH Pro R3 Firmware**
+
+This if fork from bibarrav/OpenSprinkler-Sonoff4ch Repo. I maded some small changes and fixes to fit exactly on SonOff 4CH PRO R3, because in original Repo they not work with it. Because I'm not a programmer, changes are minor but fully tested with mine SonOff. If you get one of these 4ch ports relay switches, its possible to use just the ready .bin file to upload. Version of OpenSprinkler is 2.1.8.
+
+- Fixed - GPIO on Buttons and Relays;
+- Fixed - Reverse using of relays HIGH->LOW & LOW->HIGH; // In original firmware relay start by default ON, and when program is used they goes off for selected time. //
+- Addedd - function for factory reset; (Without it you cannot switch WiFi network)
+- Addedd - Ready to use binary (OpenSprinkler-Sonoff4ch.ino.generic.bin) - not need to compile by yourself;
+
+
+## Upload firmware using Linux
+
+Using USB to TTL covertor with installed esptool.py when connect to internal serial with following commands you can flash the image :
+
+    $ esptool.py --port /dev/ttyUSB0 flash_id
+    $ esptool.py --port /dev/ttyUSB0 erase_flash
+    $ esptool.py --port /dev/ttyUSB0 write_flash -fs 1MB -fm dout 0x0 OpenSprinkler-Sonoff4ch.ino.generic.bin
+
+
+## Resetting Instruction : 
+
+1. Power OFF
+2. Hold Button 4 & Power ON without release Button 4
+3. When Relay 4 light ON, release Button 4 and Press and Hold Button 3
+4. When Relay 3 is ON, continue to Hold Button 3 around 3-4 sec. (After more 5 sec. release Button 3)
+5. When All (4) Relays get ON and after 1 sec, get OFF, the board is in Initial state.
+6. Open your network manager in your mobile device, look for Access Point with name OS_XXXXXX and connect to it.
+7. Open browser on your mobile device and go to 192.168.1.4, select your favorite network and Enjoy!
+
+
+Note : Just swapped Button1 to Button4 function from Original/Original OpenSprinkler, because when Button1 is on Hold when powerOn, the device goes in flash mode. In original firmware Button1 is used to start reset function, so swapping GPIO in defines.cpp will do the trick. I personaly can't readd new fuction for Button4, so using existing is OK for me.
+
+
+# Here it is the original README from Repo : 
+
 # **OpenSprinkler for Sonoff 4CH Firmware**
 
 This is the unified OpenSprinkler firmware adapted to runs on Sonoff 4ch, without a display and expansion boards.
