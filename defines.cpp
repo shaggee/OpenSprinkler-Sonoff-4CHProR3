@@ -17,8 +17,8 @@ byte PIN_BOOST_EN = 255;
 byte PIN_LATCH_COM = 255;
 byte PIN_SENSOR1 = 255;
 byte PIN_SENSOR2 = 255;
-byte PIN_RAINSENSOR = 255;
-byte PIN_FLOWSENSOR = 16; //D0
+byte PIN_RAINSENSOR = 2; // SDA PIN
+byte PIN_FLOWSENSOR = 255; //D0
 
 /*
  GPIO_KEY1,        // GPIO00 Button 1
