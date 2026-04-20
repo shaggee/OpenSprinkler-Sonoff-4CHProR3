@@ -245,7 +245,7 @@ typedef enum {
     extern byte PIN_RAINSENSOR;
     extern byte PIN_FLOWSENSOR;
 
-  #define ENABLE_DEBUG
+  //#define ENABLE_DEBUG  // disabled: frees GPIO1 (TX) and GPIO3 (RX) so GPIO3 can be used for rain sensor
   #if defined(ENABLE_DEBUG)
       #define DEBUG_BEGIN(x)   Serial.begin(x)
       #define DEBUG_PRINT(x)   Serial.print(x)
