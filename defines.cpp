@@ -17,7 +17,7 @@ byte PIN_BOOST_EN = 255;
 byte PIN_LATCH_COM = 255;
 byte PIN_SENSOR1 = 255;
 byte PIN_SENSOR2 = 255;
-byte PIN_RAINSENSOR = 2; // SDA PIN
+byte PIN_RAINSENSOR = 3; // RX pin (GPIO3) - moved from GPIO2 (SDA) to avoid ESP8266 boot-strap issue
 byte PIN_FLOWSENSOR = 255; //D0
 
 /*
